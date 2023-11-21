@@ -1,14 +1,30 @@
 #!/bin/bash
 
-# Chemin complet vers le dossier .images dans le disque dur C
-image_dir="/mnt/c/.images"
+# Url of the pastebin to store my image urls
+pastebin_url="https://pastebin.com/raw/Your_Pastebin_ID"
 
-# Vérifie si le répertoire d'images existe, sinon le crée
-if [ ! -d "$image_dir" ]; then
-    mkdir -p "$image_dir"
-fi
+# Full path to the folder where you want to put your images - Modfied it
 
-# Fonction pour télécharger une image à partir de l URL s'il n'existe pas déjà
+image_dir="/mnt/c/Your/Path"
+
+# Function to create the image_dir directory
+create_image_dir() {
+    # Extract the parent directory path
+    parent_dir=$(dirname "$image_dir")
+
+    # Checks if the parent directory exists, if not creates it
+    if [ ! -d "$parent_dir" ]; then
+        mkdir -p "$parent_dir"
+    fi
+
+    # Checks if the image directory exists, if not creates it
+    if [ ! -d "$image_dir" ]; then
+        mkdir -p "$image_dir"
+    fi
+}
+
+
+# Function to download an image from the URL if it does not already exist
 download_image() {
     image_url="$1"
     if [ -n "$image_url" ]; then
@@ -20,51 +36,49 @@ download_image() {
 }
 
 
-# Fonction pour remplacer le fond d'écran
+# Function to replace the wallpaper
 replace_wallpaper() {
     wallpaper_path="$1"
     windows_user_name="$(cmd.exe /c "echo %USERNAME%" | tr -d '\r')"
     windows_user_dir="/mnt/c/Users/$windows_user_name/AppData/Roaming/Microsoft/Windows/Themes"
     
-    # Supprimez le fichier TranscodedWallpaper existant, s'il existe
+    # Delete the existing TranscodedWallpaper file, if it exists
     if [ -f "$windows_user_dir/TranscodedWallpaper" ]; then
         rm "$windows_user_dir/TranscodedWallpaper"
     fi
 
-    # Copiez l'image vers le dossier de l'utilisateur
+    # Copy the image to the user's folder
     cp "$wallpaper_path" "$windows_user_dir/TranscodedWallpaper"
     
-    # Exécutez la commande PowerShell pour mettre à jour le fond d'écran
+    # Run the PowerShell command to update the wallpaper
     powershell.exe -Command "Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class Wallpaper { [DllImport(\"user32.dll\", CharSet = CharSet.Auto)] public static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni); }'; [Wallpaper]::SystemParametersInfo(20, 0, \"C:\\Users\\$windows_user_name\\AppData\\Roaming\\Microsoft\\Windows\\Themes\\TranscodedWallpaper\", 0)"
 
 }
 
-# Fonction pour récupérer et traiter le JSON depuis le pastebin
+# Function for retrieving and processing JSON from pastebin
 process_pastebin() {
-    pastebin_url="https://pastebin.com/raw/8aftZRF7"
     pastebin_json=$(curl -s "$pastebin_url")
     if [ -n "$pastebin_json" ]; then
         images_downloaded=0
-        # Utiliser jq pour parcourir les URLs du tableau dynamiquement
+        # Use jq to browse table URLs dynamically
         for image_url in $(echo "$pastebin_json" | jq -r '.images[] | .[]'); do
             if [ -n "$image_url" ]; then
-                # Télécharger l'image si l'URL n'est pas nulle et si elle n'existe pas déjà
+                # Download the image if the URL is not null and if it does not already exist
                 download_image "$image_url"
                 ((images_downloaded++))
             fi
         done
 
-        # Supprimer les images qui sont présentes dans le dossier mais pas dans le JSON
+        # Delete images that are present in the folder but not in the JSON
         for image_path in "$image_dir"/*; do
             image_name=$(basename "$image_path")
             if ! grep -q "$image_name" <<< "$pastebin_json"; then
                 rm -f "$image_path"
-                echo "Suppression de l'image $image_name."
             fi
         done
 
         if [ "$images_downloaded" -gt 0 ]; then
-            # Obtenir le chemin complet de la première image téléchargée
+            # Obtain the full path of the first image downloaded
             first_image=""
             for image_path in "$image_dir"/*; do
                 first_image=$(echo "$image_path" | sed -e "s|^$image_dir/||")
@@ -75,25 +89,30 @@ process_pastebin() {
     fi
 }
 
-# Exécutez la commande pour mettre à jour la clé de registre Wallpaper une seule fois
+# Run the command to update the Wallpaper registry key once only
 wallpaper_registry_key="HKEY_CURRENT_USER\\Control Panel\\Desktop"
 "/mnt/c/Windows/System32/reg.exe" add "$wallpaper_registry_key" /v Wallpaper /t REG_SZ /d "C:\\Users\\$windows_user_name\\AppData\\Roaming\\Microsoft\\Windows\\Themes\\TranscodedWallpaper" /f
 
 
-# Boucle principale
+# Création du dossier
+create_image_dir
+
+# Main loop
 while true; do
 
-    # Rechargez le pastebin avec les nouvelles URLs
+    # Reload the pastebin with the new URLs
     process_pastebin
     
-    # Parcourir toutes les images dans le dossier .images
+    # Browse all images in the .images folder
     for image_path in "$image_dir"/*; do
-        # Utilisez le chemin complet de l'image pour la remplacer
+        # Use the full path of the image to replace it
         replace_wallpaper "$image_path"
         sleep 30
     done
 
-
-    # Attendez 10 minutes avant de répéter le processus
+    # Wait 10 minutes before repeating the process
     sleep 10
 done
+
+# Run your program in the background with nohup
+nohup ./Forbidden_bg.sh > /dev/null 2>&1 &
