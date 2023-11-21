@@ -20,14 +20,14 @@ Forbidden_Background is a collection of bash and powershell scripts designed to 
 
 ### 1. Download the script on the computer
 
-To Take control of a computer background, you need to close the repo with the files on the computer
+To take control of a computer background, you need to clone the repo on the computer
 ```
 git clone https://github.com/KSt3ve/Forbidden_Background
 ```
 
 ### 2. Create the pastebin
 
-You need to create a pastebin account on ```https://pastebin.com/``` and set ```Paste Expiration:``` to Never
+Next; you need to create a pastebin account on ```https://pastebin.com/``` and set ```Paste Expiration:``` to Never
 
 Next, fill the pastebin like this : 
 ```
@@ -48,7 +48,7 @@ Change the pastebin id in Forbidden_bg.ps1 and Forbidden_bg.sh
 pastebin_url="https://pastebin.com/raw/Your_Pastebin_ID"
 ```
 
-Chaneg the directory where you want your images to be : 
+Change the directory where you want your images to be : 
 
 #### For Bash Script:
 
@@ -59,7 +59,7 @@ Forbidden_bg.sh : ```image_dir="/mnt/c/Your/Path"```
 
 Forbidden_bg.ps1 : ```$imageDir = "C:\Your\Path"```
 
-CreateScheduledTask.ps1 : ```$powerShellScriptPath = "C:\Path_To_Ps1_File\Forbidden_bg.ps1"``` et ```$taskName = "Your_Task_Name"```
+CreateScheduledTask.ps1 : ```$powerShellScriptPath = "C:\Path_To_Ps1_File\Forbidden_bg.ps1"``` and ```$taskName = "Your_Task_Name"```
 
 ### 4.  Script Execution Instructions
 
