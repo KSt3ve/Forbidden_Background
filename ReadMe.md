@@ -20,10 +20,9 @@ Forbidden_Background is a collection of bash and powershell scripts designed to 
 
 ### 1. Download the script on the computer
 
-To Take control of a computer background, you need to install either the Bash or Powershell collection
+To Take control of a computer background, you need to close the repo with the files on the computer
 ```
-git clone https://github.com/KSt3ve/Forbidden_Background/Bash
-git clone https://github.com/KSt3ve/Forbidden_Background/Powershell
+git clone https://github.com/KSt3ve/Forbidden_Background
 ```
 
 ### 2. Create the pastebin
