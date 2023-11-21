@@ -6,7 +6,7 @@ Forbidden_Background is a collection of bash and powershell scripts designed to 
 
 ## Version and Status
 - Version: 1.0
-- Update: 12/02/2023
+- Update: 21/11/2023
 - Status: stable
 
 ## Features
